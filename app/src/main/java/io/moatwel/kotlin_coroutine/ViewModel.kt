@@ -3,9 +3,8 @@ package io.moatwel.kotlin_coroutine
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.util.Log
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class ViewModel : ViewModel() {
     val repository = UserRepository()
@@ -13,21 +12,29 @@ class ViewModel : ViewModel() {
     val halu: MutableLiveData<User> = MutableLiveData()
     val userList: MutableLiveData<List<User>> = MutableLiveData()
 
-    fun loadUser(): Job = launch(CommonPool) {
+    fun loadUser() {
         Log.d("Main","Now Loading")
-        val user = repository.loadHalu()
-        halu.postValue(user)
-        Log.d("Main", user.toString())
+        repository.loadHalu()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    halu.postValue(it)
+                }, {
+                    Log.e("Main", "halu error")
+                })
         Log.d("Main","End Loading")
     }
 
-    fun loadMany(): Job = launch(CommonPool) {
+    fun loadMany() {
         Log.d("Main", "Many Loading")
-        val users = repository.loadUsers()
-        userList.postValue(users)
-        users.forEach {
-            Log.d("Main", it.toString())
-        }
+        repository.loadUsers()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    userList.postValue(it)
+                }, {
+                    Log.e("Main", "list error")
+                })
         Log.d("Main", "End Many Loading")
     }
 }
