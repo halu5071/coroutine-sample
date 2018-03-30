@@ -19,4 +19,13 @@ class UserDataSource {
             return moshi.adapter<User>(User::class.java).fromJson(it.string())
         } ?: return null
     }
+
+    fun loadManyUser(): List<User> {
+        Thread.sleep(6000)
+        return arrayListOf(
+                User(1, "hoge"),
+                User(2, "fuga"),
+                User(3, "none")
+        )
+    }
 }
