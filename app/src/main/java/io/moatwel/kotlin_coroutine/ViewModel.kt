@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel
 import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
 class ViewModel : ViewModel() {
@@ -13,9 +14,9 @@ class ViewModel : ViewModel() {
     val halu: MutableLiveData<User> = MutableLiveData()
     val userList: MutableLiveData<List<User>> = MutableLiveData()
 
-    fun loadUser(): Job = launch(CommonPool) {
+    fun loadUser() = launch {
         Log.d("Main","Now Loading")
-        val user = repository.loadHalu()
+        val user = repository.loadHalu().await()
         halu.postValue(user)
         Log.d("Main", user.toString())
         Log.d("Main","End Loading")

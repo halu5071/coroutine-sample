@@ -1,11 +1,13 @@
 package io.moatwel.kotlin_coroutine
 
 import com.squareup.moshi.Moshi
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class UserDataSource {
-    fun loadHalu(): User? {
+    fun loadHalu() = async(CommonPool) {
         val client = OkHttpClient()
         val moshi = Moshi.Builder()
                 .build()
@@ -16,8 +18,8 @@ class UserDataSource {
 
         val response = client.newCall(request).execute()
         response.body()?.let {
-            return moshi.adapter<User>(User::class.java).fromJson(it.string())
-        } ?: return null
+            return@async moshi.adapter<User>(User::class.java).fromJson(it.string())
+        } ?: return@async null
     }
 
     fun loadManyUser(): List<User> {
